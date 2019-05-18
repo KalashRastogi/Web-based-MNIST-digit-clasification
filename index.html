@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>TF</title>
+    
+</head>
+
+<body>
+<canvas id="canvas"> </canvas>
+        
+<!--<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.12.0"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>  
+<script>
+    async function loadModel() {
+        console.log("model loading..");
+    
+        // clear the model variable
+        
+        let model = undefined;
+       // load the model using a HTTPS request (where you have stored your model files)
+        model = await tf.loadLayersModel("https://gogul09.github.io/models/digitrecognizercnn/model.json");
+        /*model = await tf.loadLayersModel("https://srtkrwt.github.io/models/model.json", function(err){
+            if(err){
+                console.log("err loading model");
+            }
+        });
+        */
+        console.log("model loaded..");
+        var img = new Image();
+	    img.src = prompt();
+
+	    img.onload = async function () {
+            // CREATE CANVAS CONTEXT.
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            ctx.drawImage(img, 0, 0);  // DRAW THE IMAGE TO THE CANVAS.
+       
+            
+            let tensor = tf.browser.fromPixels(canvas)
+                .resizeNearestNeighbor([28, 28])
+                .mean(2)
+                .expandDims(2)
+                .expandDims()          
+                .toFloat();
+            
+            console.log(tensor.shape);
+            let predictions =  await model.predict(tensor.div(255.0)).data();
+            console.log(predictions);
+
+            // get the model's prediction results
+            let results = Array.from(predictions);
+
+            //document.getElementById('output').innerHTML = "he";
+        }
+       
+    }
+    $(document).ready(function(){
+        console.log("start...");
+        loadModel();
+        
+    });
+    
+</script>
+    
+</body>
+</html>
